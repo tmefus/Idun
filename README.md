@@ -1,3 +1,6 @@
+这是根据 craftingInterpreter 这个网站的教程，同时也大量参考了站上其他的同类项目而写的学习项目。
+下面是一些相关的东西和学习与实现目标。
+
 ### 数据类型
 
 * **布尔值**. bool
@@ -296,7 +299,7 @@ if (flags & FLAG_MASK == SOME_FLAG) { ... } // 先做按位与&操作再比较�
 
 ```
 
-### The Standard Library
+### 标准库
 
 ```kt
 ...
