@@ -1,0 +1,263 @@
+// Idun Grammer
+
+program 
+    : declaration* EOF
+    ;
+
+declaration 
+    : varDecl
+    | letDecl
+    | funDecl
+    | classDecl
+    | enumDecl
+    | statement
+    ;
+
+varDecl
+    : 'var' IDENTIFIER type_annotation? ('=' expression)? ';'
+    ;
+
+letDecl
+    : 'let' IDENTIFIER type_annotation? '=' expression ';'
+    ; 
+
+funDecl
+    : 'fun' IDENTIFIER '(' (valueParameter (',' valueParameter)* )? ')' 
+        type_annotation? block
+    ; 
+
+classDecl
+    : 'class' IDENTIFIER '(' (classParameters  (',' classParameters)* )? ')'
+        type_annotation? '{' (varDecl | letDecl | funDecl |enumDecl)* '}'
+    ;
+
+classParameters
+    :  ('var' | 'let') valueParameter
+    ;
+
+statement
+    : ifStmt
+    | forStmt
+    | whileStmt
+    | returnStmt
+    | whenStmt
+    | breakStmt
+    | continueStmt
+    | importStmt
+    | tryStmt
+    | throwStmt
+    | block
+    | exprStmt
+    ;
+
+ifStmt
+    : 'if' '(' expression ')' statement 
+        ('elif' statement)* ('else' statement)?
+    ;
+
+forStmt
+    : 'for' '(' IDENTIFIER 'in' expression ')' statement
+    ;
+
+whileStmt 
+    : 'while' '(' expression ')' statement
+    ;
+
+returnStmt
+    : 'return' expression? ';'
+    ;
+
+whenStmt
+    : 'while' '(' expression ')' statement 
+        '{' whenEntry+ 'else' '->' block '}'
+    ;
+
+whenEntry 
+    : whenCondition (',' whenCondition)* '->' block
+
+whenCondition 
+    : whenCondTest
+    | expression
+    ;
+
+whenCondTest 
+    : in_test expression
+    | is_test type_name
+
+in_test
+    : (('not' | '!')? 'in')
+    ;
+
+is_test
+    : (('not' | '!')? 'is')
+    ;
+
+breakStmt
+    : 'break' ';'
+    ;
+
+continueStmt
+    : 'continue' ';'
+    ;
+
+importStmt 
+    : 'import' IDENTIFIER ('.' IDENTIFIER)* ';'
+    ;
+
+tryStmt 
+    : 'try' block ((catchBlock+ finallyBlock?) | finallyBlock)
+    ;
+
+catchBlock
+  : 'catch' '(' IDENTIFIER ':' IDENTIFIER ')' block
+  ;
+
+finallyBlock
+  : 'finally' block
+  ;
+
+throwStmt
+    : 'throw' call
+    ;
+
+block 
+    : '{' declaration* '}'
+    ;
+
+exprStmt  
+    : expression ';'
+    ;
+
+expression
+    : assignment
+    ;
+
+assignment
+    : (call '.')? IDENTIFIER assignment_operator assignment
+    | logic_or
+    ;
+
+logic_or
+    : logic_and ('or' logic_and)*
+    ;
+
+logic_and
+    : equality ('and' equality)*
+    ;
+
+equality
+    : comparison (( '!=' | '==') comparison)*
+    ;
+
+comparison
+    : term (('>' | '>=' | '<' | '<=') term)*
+    ;
+
+in_is_test
+    : range ((in_test | is_test) range)?
+    ;
+
+range
+    : bit_or ('..' bit_or)?
+    ;
+
+bit_or
+    : bit_xor ('|' bit_xor)*
+    ;
+
+bit_xor
+    : bit_and ('^' bit_and)*
+    ;
+
+bit_and
+    : bit_shift ('&' bit_shift)*
+    ;
+
+bit_shift
+    : term (('<<' | '>>' | '>>>') term)*
+    ;
+
+term
+    : factor (('-' | '+' ) factor)*
+    ;
+
+factor
+    : unary (('/' | '*' | '%') unary)*
+    ;
+
+unary
+    : ('!' | '-' | '~') unary
+    | power
+    ;
+
+power
+    : call ('**' unary)*
+    ;
+
+call
+    : primary ('(' call_arguments? ')' | '.' IDENTIFIER)*
+    ;
+
+primary
+    : IDENTIFIER 
+    | 'true' | 'false' | 'nil' 
+    | NUMBER | STRING
+    | '(' expression ')'
+    | 'this'
+    | 'super' '.' IDENTIFIER
+    ;
+
+call_arguments
+    : expression (',' expression)*
+    ;
+
+assignment_operator
+    : '='
+    | '+='
+    | '-='
+    | '*='
+    | '/='
+    | '%='
+    ;
+
+valueParameter
+    : IDENTIFIER ':' type_annotation ('=' expression)?
+    ;
+
+type_annotation
+    : ':' type_name ('[' type_name ']')?
+    ;
+
+type_name
+    : int | float | str | list | set | map
+    | IDENTIFIER
+    ;
+
+STRING
+    : '\"' (string_text | string_expr)* '\"'
+    ;
+
+string_text
+    : ~('\\' | '\'' | '$')+ | '$'
+    | '\\' ('t' | 'b' | 'r' | 'n' | '\'' | '\'' | '\\' | '$')
+    ;
+
+string_expr
+    : '${' expression '}'
+    ;
+
+NUMBER
+    : DIGIT+ ('.' DIGIT+)?
+    ;
+
+IDENTIFIER
+    : ALPHA (ALPHA | DIGIT)*
+    ;
+    
+ALPHA
+    : 'a' ... 'z' | 'A' ... 'Z' | '_'
+    ;
+
+DIGIT
+    : '0' ... '9'
+    ;
